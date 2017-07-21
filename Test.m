@@ -1,75 +1,74 @@
-% function Test
-    WINSIZE = 1; %Image.Dimx / WINSIZE must be an interger
-    
-% %     Image = imread('Test.png');
-% %     LapOperator = fspecial('laplacian');
-% %     FM = imfilter(Image, LapOperator, 'replicate', 'conv');
-% %     FM = double(FM);
-% %     FM = FM.^2;
-% %     
-% %     ResultDimX = size(Image, 1)/WINSIZE;
-% %     ResultDimY = size(Image, 2)/WINSIZE;
-% %     ResultImage = zeros(ResultDimX, ResultDimY);
-% %     
-% %     for i = 1:1:ResultDimX
-% %         for j = 1:1:ResultDimY
-% %             ResultImage(i, j) = mean2(imcrop(FM, [i*WINSIZE j*WINSIZE WINSIZE WINSIZE]));
-% %         end
-% %     end
-% %     
-% %     ResultImage = ResultImage / max(max(ResultImage));
-% %     BLevel = graythresh(ResultImage);
-% %     ResultImage = im2bw(ResultImage, BLevel);
-% %     
-% %     ImageFDis = zeros(size(Image, 1), size(Image, 2));
-% %     for i = 1:1:ResultDimX
-% %         for j = 1:1:ResultDimY
-% %             for m = 1:WINSIZE
-% %                 for n = 1:WINSIZE
-% %                     ImageFDis(i*WINSIZE+m, j*WINSIZE+n) = ResultImage(i, j);
-% %                 end
-% %             end
-% %         end
-% %     end
-% %     
-% %     figure, imshow(imcrop(Image, [500 500 299 299]));
-% %     figure, imshow(imcrop(ImageFDis, [500 500 299 299]));
-% %             
-    fclose all
-    clear all
-    close all
-    clc
-    
+function Test(Measure)
+
     WINSIZE = 5;
+    %DISPLAYA = [500 500 99 99];
+    DISPLAYA = [0 0 1500 1500];
     
     Image = imread('Test_2.png');
      
-    LAP = fspecial('laplacian');
-    FM = imfilter(double(Image), LAP, 'replicate', 'conv');
-    FM = (FM.^2);
-
-    figure
-    imagesc(Image)
-    colormap gray
-    axis off
-    title('Original image')
+    switch upper(Measure)
+        case 'LAPE'
+            LapOperator = fspecial('laplacian');
+            FM = imfilter(Image, LapOperator, 'replicate', 'conv');
+            FM = double(FM);
+            FM = FM.^2;
+            
+        case 'BREN'
+            [M, N] = size(Image);
+            DH = zeros(M, N);
+            DV = zeros(M, N);
+            DV(1:M-2,:) = Image(3:end,:)-Image(1:end-2,:);
+            DH(:,1:N-2) = Image(:,3:end)-Image(:,1:end-2);
+            FM = max(DH, DV);
+            FM = double(FM);
+            FM = FM.^2;
+            
+        case 'GRAE'
+            Ix = Image;
+            Iy = Image;
+            Iy(1:end-1,:) = diff(Image, 1, 1);
+            Ix(:,1:end-1) = diff(Image, 1, 2);
+            FM = double(Image);
+            FM = Ix.^2 + Iy.^2;
+    end
 
     fun = @(block_struct) mean2(block_struct.data) * ones(size(block_struct.data));
     I3 = blockproc(FM,[WINSIZE WINSIZE],fun);
     norm_I3 = (I3 - min(I3(:))) / ( max(I3(:)) - min(I3(:)) );
     norm_I3 = histeq(norm_I3);
     
-    figure
-    imagesc(norm_I3)
-    colormap jet
+    IO = figure;
+    set(gca,'position',[0 0 1 1],'units','normalized');
+    imagesc(imcrop(Image, DISPLAYA));
+    colormap gray
     axis off
-    title('LAPE with block mean')
+    axis equal
+    saveas(IO, 'Original', 'tif');
     
-    BLevel = graythresh(norm_I3);
-    ResultImage = im2bw(norm_I3, BLevel);
-
-    figure
-    imagesc(ResultImage)
-    axis off
+    ID = figure;
+    set(gca,'position',[0 0 1 1],'units','normalized');
+    imagesc(imcrop(norm_I3, DISPLAYA));
     colormap jet
-    title('Binary separation with Otsu')
+    axis off
+    axis equal
+    saveas(ID, 'Map', 'tif');
+    
+    figure
+    set(gca,'position',[0 0 1 1],'units','normalized');
+    im1 = imread('Original.tif');
+    image(im1)
+    im2 = imread('Map.tif');
+    hold on
+    him = image(im2);
+    set(him, 'AlphaData', 0.5);
+    axis off
+    axis equal
+    
+%     BLevel = graythresh(norm_I3);
+%     ResultImage = im2bw(norm_I3, BLevel);
+% 
+%     figure
+%     imagesc(imcrop(ResultImage, DISPLAYA))
+%     axis off
+%     colormap jet
+end

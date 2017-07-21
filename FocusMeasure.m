@@ -34,7 +34,7 @@ function FocusMeasure(Measure)
     
     for i = 1:1:ResultDimX
         for j = 1:1:ResultDimY
-            ResultImage(i, j) = mean2(imcrop(FM, [i*WINSIZE j*WINSIZE WINSIZE WINSIZE]));
+            ResultImage(i, j) = mean2(imcrop(FM, [(j-1)*WINSIZE+1 (i-1)*WINSIZE+1 WINSIZE-1 WINSIZE-1]));
         end
     end
     
