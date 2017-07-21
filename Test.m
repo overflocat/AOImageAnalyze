@@ -1,10 +1,9 @@
 function Test(Measure)
 
-    WINSIZE = 5;
-    %DISPLAYA = [500 500 99 99];
-    DISPLAYA = [0 0 1500 1500];
+    WINSIZE = 50;
+    DISPLAYA = [500 500 199 199];
     
-    Image = imread('Test_2.png');
+    Image = imread('Test.png');
      
     switch upper(Measure)
         case 'LAPE'
@@ -28,7 +27,6 @@ function Test(Measure)
             Iy = Image;
             Iy(1:end-1,:) = diff(Image, 1, 1);
             Ix(:,1:end-1) = diff(Image, 1, 2);
-            FM = double(Image);
             FM = Ix.^2 + Iy.^2;
     end
 
@@ -64,11 +62,11 @@ function Test(Measure)
     axis off
     axis equal
     
-%     BLevel = graythresh(norm_I3);
-%     ResultImage = im2bw(norm_I3, BLevel);
-% 
-%     figure
-%     imagesc(imcrop(ResultImage, DISPLAYA))
-%     axis off
-%     colormap jet
+    BLevel = graythresh(norm_I3);
+    ResultImage = im2bw(norm_I3, BLevel);
+
+    figure
+    imagesc(imcrop(ResultImage, DISPLAYA))
+    axis off
+    colormap jet
 end

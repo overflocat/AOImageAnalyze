@@ -1,11 +1,12 @@
 function FocusMeasure(Measure)
-    WINSIZE = 5; %Image.Dimx / WINSIZE must be an interger
+    WINSIZE = 50; %Image.Dimx / WINSIZE must be an interger
     Image = imread('Test_2.png');
     
     switch upper(Measure)
         case 'LAPE'
             LapOperator = fspecial('laplacian');
             FM = imfilter(Image, LapOperator, 'replicate', 'conv');
+            imshow(FM);
             FM = double(FM);
             FM = FM.^2;
             
