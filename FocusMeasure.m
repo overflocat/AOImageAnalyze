@@ -1,5 +1,5 @@
 function FocusMeasure(Measure)
-    WINSIZE = 50; %Image.Dimx / WINSIZE must be an interger
+    WINSIZE = 15; %Image.Dimx / WINSIZE must be an interger
     Image = imread('Test_2.png');
     
     switch upper(Measure)
