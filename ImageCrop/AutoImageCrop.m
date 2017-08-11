@@ -9,11 +9,11 @@ function AutoImageCrop
     SAVEPATH = './Result/';
     NAME = 'BorichR'; %For output
     FOCUS_OPERATOR = 'LAPE'; %For auto select
-    CROP_OPTION = 6; %1 for mid, 2 for tl, 3 for bl, 4 for tr, 5 for br, 6 for all, 7 for auto select
+    CROP_OPTION = 7; %1 for mid, 2 for tl, 3 for bl, 4 for tr, 5 for br, 6 for all, 7 for auto select
     COLOR_OF_CIRCLE = [255 0 66]; %The color of pixels in the circle
     %Experimental function - it may be time consuming or incorrect
     AUTO_COLOR_DETECT = 1; %set to 1 for AutoCentreColorDetect
-    COLORDIFF = 130; %Useful if AUTO_COLOR_DETECT is set
+    COLORDIFF = 120; %Useful if AUTO_COLOR_DETECT is set
     
     %Read The Image
     image = imread('./Data/Copy of Borich, Ronald.png');
@@ -108,25 +108,26 @@ function AutoImageCrop
         figure
         imagesc(image);
         axis equal
+        axis off
         hold on
         plot(colC, rowC, 'b*');
         
         for i = 1:length(cropIndex)
-            colorL = ['r' 'r' 'r' 'r' 'r'];
+            colorL = ['m' 'm' 'm' 'm' 'm'];
             if(CROP_OPTION == 1 || autoSelList(i) == 1 || CROP_OPTION == 6)
-                colorL(1) = 'y';
+                colorL(1) = 'g';
             end
             if(CROP_OPTION == 2 || autoSelList(i) == 2 || CROP_OPTION == 6)
-                colorL(2) = 'y';
+                colorL(2) = 'g';
             end
             if(CROP_OPTION == 3 || autoSelList(i) == 3 || CROP_OPTION == 6)
-                colorL(3) = 'y';
+                colorL(3) = 'g';
             end
             if(CROP_OPTION == 4 || autoSelList(i) == 4 || CROP_OPTION == 6)
-                colorL(4) = 'y';
+                colorL(4) = 'g';
             end
             if(CROP_OPTION == 5 || autoSelList(i) == 5 || CROP_OPTION == 6)
-                colorL(5) = 'y';
+                colorL(5) = 'g';
             end
             
             rectangle('Position', [nasalR(i)-PPCW/2, vertR(i)-PPCW/2, PPCW, PPCW], ...
@@ -141,7 +142,7 @@ function AutoImageCrop
                 'EdgeColor', colorL(5), 'LineWidth', 2);
             
             text(nasalR(i), vertR(i), num2str(cropIndex(i)), ...
-                'Color', 'white', 'FontSize', 14);
+                'Color', 'white', 'FontSize', 14, 'FontWeight', 'bold');
         end 
     end
     
@@ -172,6 +173,7 @@ function [rowIndexC, colIndexC] = FindOriginPoint( imageSlice, COLOR_OF_CIRCLE )
     colIndexC = cColIndex;
 end
 
+%Find the red part of the image and return the color
 function COLOR_OF_CIRCLE = CentreColorDetect( imageSlice, colorDiff )
     imageSlice = imresize(imageSlice, 0.1);
     
