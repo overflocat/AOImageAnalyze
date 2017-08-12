@@ -1,7 +1,7 @@
 function ImagePreProcessing(readPath, fileName)
     %Set Parameters
     SAVEPATH = './Result/';
-    NEW_DIM = 300; % The new size of the image
+    NEW_DIM = 300; % The new size of the image, must be an even number
     DELTA_DETECT = 5.5; %Unit is 'Cycles per degree', for detecting Yellot's ring
     DEGREE_PER_PIXEL = 0.0026;
     DEBUGFLAG = 1;
@@ -10,8 +10,8 @@ function ImagePreProcessing(readPath, fileName)
     DELTA_FIL_BAND = 9.5; %For option 1
     PER_RADIUSG = 0.9; %For option 2
     PER_RADIUSI = 0.8; %For option 3
-    LOW_PERCENT = 0.1; %For option 3
-    Q_ENHANCEMENT = 0;
+    LOW_PERCENT = 0; %For option 3
+    Q_ENHANCEMENT = 1;
 
     %For debug
     if(nargin == 0)
@@ -28,7 +28,6 @@ function ImagePreProcessing(readPath, fileName)
 
     %Read Image
     image = imread(strcat(readPath, fileName));
-    image = rgb2gray(image);
     image = imresize(image, [NEW_DIM NEW_DIM], 'bicubic');
     
     %Get fftResult
