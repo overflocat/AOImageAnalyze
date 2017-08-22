@@ -1,8 +1,8 @@
 function [yelRadius_dppR, coneDensityR] = YelMeasure(ImagePath)
     %Read Image
     if(nargin == 0)
-       ImagePath = ('./Data/55x55/CrebbinB_OD_7,00T0,00V_TR.png');
-       DEBUGFLAG = 1;
+       ImagePath = ('./Data/100x100/CrebbinB_OD_3,00N0,00V_BL.png');
+       DEBUGFLAG = 0;
     else
        DEBUGFLAG = 0;
     end
@@ -12,9 +12,9 @@ function [yelRadius_dppR, coneDensityR] = YelMeasure(ImagePath)
     %Set Parameters
     METHOD = 0; %0 for Gaussian mask&correlation, 1 for fitting
     PRE_PROCESSING = 1; %1 for image enhancement
-    DELTA = 1.5; %Unit is 'Cycles per degree'
+    DELTA = 5.5; %Unit is 'Cycles per degree'
     ACCU = 0.01; %The accuracy of the result
-    WINDOW_SIZE = 0.055; %Unit is mm
+    WINDOW_SIZE = 0.1; %Unit is mm
     DEGREE_PER_PIXEL = 0.0026;
     FENLARGE_TIMES = 5;
 

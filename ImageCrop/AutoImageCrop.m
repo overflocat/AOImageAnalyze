@@ -107,6 +107,7 @@ function AutoImageCrop
     if(DEBUGFLAG == 1)
         figure
         imagesc(image);
+        set(gca,'position',[0 0 1 1],'units','normalized');
         axis equal
         axis off
         hold on

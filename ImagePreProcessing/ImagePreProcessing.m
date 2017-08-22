@@ -8,15 +8,15 @@ function ImagePreProcessing(readPath, fileName)
     FIL_OPTION = 2; %1 for gaussian band-pass filtering, 2 for gaussian low-pass filtering, 
                     %3 for ideal low-pass filtering, 4 for bilateral filtering
     DELTA_FIL_BAND = 9.5; %For option 1
-    PER_RADIUSG = 0.9; %For option 2
-    PER_RADIUSI = 0.8; %For option 3
+    PER_RADIUSG = 1.0; %For option 2
+    PER_RADIUSI = 1.0; %For option 3
     LOW_PERCENT = 0; %For option 3
     Q_ENHANCEMENT = 1;
 
     %For debug
     if(nargin == 0)
        readPath = './Original/';
-       fileName = 'WitheringtD_OS_7,00N0,00V_TR.png';
+       fileName = 'GowP_OD_3,00N0,00V_TR.png';
     else
        DEBUGFLAG = 0;
     end

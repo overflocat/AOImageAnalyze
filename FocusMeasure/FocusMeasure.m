@@ -1,6 +1,6 @@
-function Test(Measure)
+function FocusMeasure(Measure)
 
-    WINSIZE = 20;
+    WINSIZE = 5;
     DISPLAYA = [500 500 199 199];
     
     Image = imread('Test.png');
@@ -27,7 +27,7 @@ function Test(Measure)
             Iy = Image;
             Iy(1:end-1,:) = diff(Image, 1, 1);
             Ix(:,1:end-1) = diff(Image, 1, 2);
-            FM = double(Ix).^2 + double(Iy).^2;
+            FM = Ix.^2 + Iy.^2;
     end
 
     fun = @(block_struct) mean2(block_struct.data) * ones(size(block_struct.data));
@@ -38,7 +38,7 @@ function Test(Measure)
     IO = figure;
     set(gca,'position',[0 0 1 1],'units','normalized');
     imagesc(imcrop(Image, DISPLAYA));
-    colormap jet
+    colormap gray
     axis off
     axis equal
     saveas(IO, 'Original', 'tif');
@@ -62,20 +62,13 @@ function Test(Measure)
     axis off
     axis equal
     
+    BLevel = graythresh(norm_I3);
+    ResultImage = im2bw(norm_I3, BLevel);
+
     figure
     set(gca,'position',[0 0 1 1],'units','normalized');
-    imagesc(imcrop(norm_I3.*double(Image), DISPLAYA));
-    colormap gray
+    imagesc(imcrop(ResultImage, DISPLAYA))
     axis off
     axis equal
-    
-%     BLevel = graythresh(norm_I3);
-%     ResultImage = im2bw(norm_I3, BLevel);
-% 
-%     figure
-%     set(gca,'position',[0 0 1 1],'units','normalized');
-%     imagesc(imcrop(ResultImage, DISPLAYA))
-%     axis off
-%     axis equal
-%     colormap jet
+    colormap jet
 end
