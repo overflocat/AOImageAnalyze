@@ -10,6 +10,5 @@ You can adjust the parameters in the function, and their functions are explained
 7. SAVEPATH: Indicating where the cropped images will be saved;
 8. NAME: The name of the patient. It will be used as a filename prefix of cropped image;
 9. FOCUS_OPERATOR: Indicating which focus operator will be chosed. It will be used by auto-select function;
-10. CROP_OPTION: 1 for mid, 2 for tl, 3 for bl, 4 for tr, 5 for br, 6 for all, 7 for auto selecting the best one from five results;
+10. CROP_OPTION: 1 for mid, 2 for tl, 3 for bl, 4 for tr, 5 for br, 6 for all, 7 for auto selecting the best one from five results by using focus measurement;
 11. COLOR_OF_CIRCLE: The rgb color of the circle. if you are not quite sure what it is and the circle is red, you can try to use AutoColorDetect to detect the value.
-

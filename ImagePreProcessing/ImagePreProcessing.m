@@ -1,17 +1,20 @@
 function ImagePreProcessing(readPath, fileName)
     %Set Parameters
-    SAVEPATH = './Result/';
+    SAVEPATH = './Result/'; %Save all results here
     NEW_DIM = 300; % The new size of the image, must be an even number
     DELTA_DETECT = 5.5; %Unit is 'Cycles per degree', for detecting Yellot's ring
-    DEGREE_PER_PIXEL = 0.0026;
-    DEBUGFLAG = 1;
+    DEGREE_PER_PIXEL = 0.0026; %predefined parameter
+    DEBUGFLAG = 1; %For illustrating the results
     FIL_OPTION = 2; %1 for gaussian band-pass filtering, 2 for gaussian low-pass filtering, 
                     %3 for ideal low-pass filtering, 4 for bilateral filtering
-    DELTA_FIL_BAND = 9.5; %For option 1
-    PER_RADIUSG = 1.0; %For option 2
-    PER_RADIUSI = 1.0; %For option 3
-    LOW_PERCENT = 0; %For option 3
-    Q_ENHANCEMENT = 1;
+    DELTA_FIL_BAND = 9.5; %For option 1, set the value of delta when generating the gaussian mask
+                          %The unit of it is cycles per degree
+    PER_RADIUSG = 1.0; %For option 2, the radius of Gaussian mask is PER_RADIUSG * Radius_of_Yellot_ring
+    PER_RADIUSI = 1.0; %For option 3, cut all parts which frequency is above PER_RADIUSI * Radius_of_Yellot_ring
+                       %Both units of the parameters are cycles per degree 
+    LOW_PERCENT = 0; %For option 3, set all High frequency part into LOW_PERCENT * Original_Value
+    Q_ENHANCEMENT = 1; %Set it to 1 to open unsharp mask and adapthisteq
+    %Caution: the paramters of bifilter can be set below
 
     %For debug
     if(nargin == 0)
@@ -45,6 +48,7 @@ function ImagePreProcessing(readPath, fileName)
     elseif(FIL_OPTION == 3)
         mask = GetLowPassMask(NEW_DIM, dist*PER_RADIUSI, LOW_PERCENT);
     elseif(FIL_OPTION == 4)
+        %Set parameters for bifilter here
         imageT = double(image);
         imageT = bfilter2(imageT/max(imageT(:)));
     end
@@ -66,16 +70,20 @@ function ImagePreProcessing(readPath, fileName)
     imwrite(imageT, strcat(SAVEPATH, fileName));
 
     if(DEBUGFLAG == 1)
+        %For original image
         figure
         subplot(2, 2, 1);
         imshow(image);
         title('Original Image');
 
+        %For filtered image
         subplot(2, 2, 2)
         imshow(imageT);
         title('Filtered Image')
         
+        %If you use bi-filter, mask and FT result won't show here
         if(FIL_OPTION ~= 4)
+            %For the mask
             subplot(2, 2, 3)
             imagesc(mask);
             title('Mask');
@@ -83,6 +91,7 @@ function ImagePreProcessing(readPath, fileName)
             axis off
             axis equal
 
+            %For the power spectrum of FT result after filtering
             subplot(2, 2, 4)
             imagesc(fftResultE .* mask);
             title('FFT result after filtering');

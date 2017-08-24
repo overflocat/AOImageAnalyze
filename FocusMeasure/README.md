@@ -1,0 +1,1 @@
+Set the parameters in the `FocusMeasure.m` and run it to show the sharpness map on the screen. The sharpness map will be saved directly in the work path.

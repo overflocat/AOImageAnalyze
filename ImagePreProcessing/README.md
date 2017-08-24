@@ -1,0 +1,3 @@
+Set all parameters in `ImagePreProcessing` function and run it, the results of original image and filtered image will be illustrated on the screen. Or you can run `ResultGen` script and all of the results will be generated and saved to the `SAVEPATH` which is set in the function `ImageProPressing` without showing intermediate steps. 
+
+I implemented Gaussian band mask, Gaussian low-pass mask, ideal low-pass mask for image filtering. I also included an achievement of bifilter as an experimental function. You can see the detailed description in the comment of the code.

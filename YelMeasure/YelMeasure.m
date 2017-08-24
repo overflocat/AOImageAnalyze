@@ -10,13 +10,13 @@ function [yelRadius_dppR, coneDensityR] = YelMeasure(ImagePath)
     imSize = size(image, 1);
 
     %Set Parameters
-    METHOD = 0; %0 for Gaussian mask&correlation, 1 for fitting
+    METHOD = 0; %0 for Gaussian mask&correlation method, 1 for fitting method
     PRE_PROCESSING = 1; %1 for image enhancement
-    DELTA = 5.5; %Unit is 'Cycles per degree'
-    ACCU = 0.01; %The accuracy of the result
+    DELTA = 5.5; %Unit is 'Cycles per degree', for GauMethod
+    ACCU = 0.01; %The accuracy of the result, for GauMethod
     WINDOW_SIZE = 0.1; %Unit is mm
     DEGREE_PER_PIXEL = 0.0026;
-    FENLARGE_TIMES = 5;
+    FENLARGE_TIMES = 5; %Enlarge FT result
 
     %Calculate Adaptive Parameters
     FMAX = 1 / (2 * DEGREE_PER_PIXEL);
@@ -37,14 +37,14 @@ function [yelRadius_dppR, coneDensityR] = YelMeasure(ImagePath)
 %     fftResult = fftResult .* filtMask;
     
     %Method 0
-    intensity = GetIntensity(fftResult);
+    intensity = GetIntensity(fftResult); %Calculate radial average of FT result, it will be used by method 1
     if(DEBUGFLAG == 1)
         corrValue = GetCorrMap(fftResult, STDEV);
     end
     yelRadius = GetDist(fftResult, STDEV, 1, ceil(imSize/2 * sqrt(2)), ACCU);
     
-    yelRadius_dpp = yelRadius / (imSize * FENLARGE_TIMES / 2) * FMAX;
-    coneDensity = sqrt(3) / (2 * (IMAGE_MAG/yelRadius_dpp)^2);
+    yelRadius_dpp = yelRadius / (imSize * FENLARGE_TIMES / 2) * FMAX; %Use formular to compute radius of Yellot ring
+    coneDensity = sqrt(3) / (2 * (IMAGE_MAG/yelRadius_dpp)^2); %Get cone density with the hypothesis of triangular lattice 
     
     if(DEBUGFLAG == 1)
         fprintf('by GauMethod:\n');
@@ -54,7 +54,7 @@ function [yelRadius_dppR, coneDensityR] = YelMeasure(ImagePath)
 
     %Method 1
     xValue = [1:size(intensity,1)]';
-    fitCoef = polyfit(xValue(10:length(intensity)), intensity(10:length(intensity)), 3);
+    fitCoef = polyfit(xValue(10:length(intensity)), intensity(10:length(intensity)), 3); %Get fitting coef
     yValue = xValue.*xValue.*xValue*fitCoef(1) + xValue.*xValue*fitCoef(2) + xValue*fitCoef(3) + fitCoef(4);
 
     subY = intensity - yValue;
@@ -177,4 +177,3 @@ function [corrValue] = GetCorrMap( fftResult, stdev )
         corrValue(r) = corr2(annTemp(imSize, r, stdev), fftResult);
     end
 end
-

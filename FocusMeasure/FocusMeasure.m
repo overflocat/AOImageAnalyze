@@ -1,10 +1,12 @@
 function FocusMeasure(Measure)
-
-    WINSIZE = 5;
-    DISPLAYA = [500 500 199 199];
+    %Set Parameters
+    WINSIZE = 5; %Window size of the sharpness map
+    DISPLAYA = [500 500 199 199]; %The area which will be showed on the screen
     
+    %Read the image
     Image = imread('Test.png');
-     
+    
+    %Set the focus operator and get the results
     switch upper(Measure)
         case 'LAPE'
             LapOperator = fspecial('laplacian');
@@ -30,11 +32,13 @@ function FocusMeasure(Measure)
             FM = Ix.^2 + Iy.^2;
     end
 
+    %Generate sharpness map
     fun = @(block_struct) mean2(block_struct.data) * ones(size(block_struct.data));
     I3 = blockproc(FM,[WINSIZE WINSIZE],fun);
     norm_I3 = (I3 - min(I3(:))) / ( max(I3(:)) - min(I3(:)) );
     norm_I3 = histeq(norm_I3);
     
+    %For original image
     IO = figure;
     set(gca,'position',[0 0 1 1],'units','normalized');
     imagesc(imcrop(Image, DISPLAYA));
@@ -43,6 +47,7 @@ function FocusMeasure(Measure)
     axis equal
     saveas(IO, 'Original', 'tif');
     
+    %For shaprness map
     ID = figure;
     set(gca,'position',[0 0 1 1],'units','normalized');
     imagesc(imcrop(norm_I3, DISPLAYA));
@@ -51,6 +56,7 @@ function FocusMeasure(Measure)
     axis equal
     saveas(ID, 'Map', 'tif');
     
+    %Overlapping shaprness map on the original image
     figure
     set(gca,'position',[0 0 1 1],'units','normalized');
     im1 = imread('Original.tif');
@@ -65,6 +71,7 @@ function FocusMeasure(Measure)
     BLevel = graythresh(norm_I3);
     ResultImage = im2bw(norm_I3, BLevel);
 
+    %For illustrating binary sharpness map
     figure
     set(gca,'position',[0 0 1 1],'units','normalized');
     imagesc(imcrop(ResultImage, DISPLAYA))
