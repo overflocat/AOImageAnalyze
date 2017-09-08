@@ -53,11 +53,20 @@ function AutoImageCrop
     %Crop Image and save the results
     autoSelList = zeros(length(cropIndex), 1);
     for i = 1:length(cropIndex)
-        crMid = imcrop(image, [nasalR(i)-PPCW/2, vertR(i)-PPCW/2, PPCW, PPCW]);
+        crMid = imcrop(image, [fix(nasalR(i)-PPCW/2), fix(vertR(i)-PPCW/2), PPCW, PPCW]);
         crTL = imcrop(image, [nasalR(i)-PPCW, vertR(i)-PPCW, PPCW, PPCW]);
         crBL = imcrop(image, [nasalR(i)-PPCW, vertR(i), PPCW, PPCW]);
         crTR = imcrop(image, [nasalR(i), vertR(i)-PPCW, PPCW, PPCW]);
         crBR = imcrop(image, [nasalR(i), vertR(i), PPCW, PPCW]);
+        
+        %Convert all images to grayscale images
+        crMid = rgb2gray(crMid);%You can also use crMid = im2uint8(crMid) here,
+                                %If you want to get an uint8 image in any
+                                %cases
+        crTL = rgb2gray(crTL);
+        crBL = rgb2gray(crBL);
+        crTR = rgb2gray(crTR);
+        crBR = rgb2gray(crBR);
         
         autoSelR = 0;
         if(CROP_OPTION == 7)
