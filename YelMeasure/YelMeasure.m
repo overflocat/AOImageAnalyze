@@ -2,7 +2,7 @@ function [yelRadius_dppR, coneDensityR] = YelMeasure(ImagePath)
     %Read Image
     if(nargin == 0)
        ImagePath = ('./Data/100x100/CrebbinB_OD_3,00N0,00V_BL.png');
-       DEBUGFLAG = 0;
+       DEBUGFLAG = 1;
     else
        DEBUGFLAG = 0;
     end

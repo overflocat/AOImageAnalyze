@@ -19,7 +19,7 @@ function ImagePreProcessing(readPath, fileName)
     %For debug
     if(nargin == 0)
        readPath = './Original/';
-       fileName = 'GowP_OD_3,00N0,00V_TR.png';
+       fileName = 'CrebbinB_OD_3,00T0,00V_Mid.png';
     else
        DEBUGFLAG = 0;
     end
