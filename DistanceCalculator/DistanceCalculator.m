@@ -37,7 +37,7 @@ function DistanceCalculator()
         fprintf('Processing file %d / %d\n', pos, fProcessNum);
         %image = imread(strcat(pathname, filename));
         image = imread(strcat(DATA_PATH, imageFiles(pos).name));
-        imageSize = size(image);
+        imageSize = size(image, 1);
 
         % Find index of parameters and set the parameters
         [C, ~] = strsplit(imageFiles(pos).name, '_');
@@ -54,11 +54,12 @@ function DistanceCalculator()
 
         % Compute NND, FND, ICD and Regularity for each cell
         % This part requires positions of detected centers
-        resultS = cell(size(centers, 1)+2, 5);
-        resultS(1, :) = [{'Cell_ID'}, {'Adjacent_Cell_IDs'}, {'NND'}, {'FND'}, {'ICD'}];
+        resultS = cell(size(centers, 1)+2, 6);
+        resultS(1, :) = [{'Cell_ID'}, {'Adjacent_Cell_IDs'}, {'NND'}, {'FND'}, {'ICD'}, {'Area'}];
         NND = zeros(size(centers, 1), 1);
         FND = zeros(size(centers, 1), 1);
         ICD = zeros(size(centers, 1), 1);
+        cellArea = zeros(size(centers, 1), 1);
 
         surX = [0.5 0.5 imageSize+0.5 imageSize+0.5];
         surY = [0.5 imageSize+0.5 0.5 imageSize+0.5];
@@ -68,6 +69,9 @@ function DistanceCalculator()
 
         surIndex = size(centers, 1)+1:size(centers, 1)+4;
         neighborM = GetNeighborOfCenters(size(centers, 1), surIndex, TRI);
+        % For computing the area of cells
+        bBox = [1 1; 1 imageSize; imageSize imageSize; imageSize 1];
+        [V, cells, XY] = VoronoiLimit(centers(:, 1), centers(:, 2), 'bs_ext', bBox);
         for i = 1:size(centers, 1)
            diffXY = repmat(centers(i, :), nnz(neighborM(i, :)), 1) - centers(neighborM(i, :), :);
            diffXY = diffXY / imageSize *IMAGE_REALSIZE;
@@ -77,17 +81,23 @@ function DistanceCalculator()
            ICD(i) = sum(dis) / size(dis, 1);
            resultS(i+1, 1) = {i};
            resultS(i+1, 2) = {sprintf('%d ', find(neighborM(i, :)))};
+           
+           %For computing the area of cells
+           fPos = centers(i, 1) == XY(:, 1) & centers(i, 2) == XY(:, 2);
+           cellArea(i) = GetAreaOfCell(V(cells{fPos}, :), centers(i, :), imageSize, IMAGE_REALSIZE);
         end
 
         resultS(2:end-1, 3) = num2cell(NND);
         resultS(2:end-1, 4) = num2cell(FND);
         resultS(2:end-1, 5) = num2cell(ICD);
+        resultS(2:end-1, 6) = num2cell(cellArea);
 
         resultS(end, 1) = {sprintf('cell num: %d', size(centers, 1))};
         resultS(end, 2) = {sprintf('file name: %s', imageFiles(pos).name)};
         resultS(end, 3) = {sprintf('Regularity: %f', mean(NND) / std(NND))};
         resultS(end, 4) = {sprintf('Regularity: %f', mean(FND) / std(FND))};
         resultS(end, 5) = {sprintf('Regularity: %f', mean(ICD) / std(ICD))};
+        resultS(end, 6) = {sprintf('Regularity: %f', mean(cellArea) / std(cellArea))};
 
         % Save Results
         [C, ~] = strsplit(imageFiles(pos).name, '.');
@@ -127,7 +137,7 @@ function DistanceCalculator()
         plot(centers(:, 1), centers(:, 2), 'r+', vx, vy, 'b-','LineWidth', 1.5);
         if(BCAKGROUND_VORONOI == 0)
             axis equal
-            axis([0 imageSize(1) 0 imageSize(2)]);
+            axis([0 imageSize 0 imageSize]);
             axis off
         end
         title('Voronoi');
@@ -146,7 +156,7 @@ function DistanceCalculator()
         plot(centers(:, 1), centers(:, 2), 'b+', vx, vy, 'b-','LineWidth', 0.5);
         if(BCAKGROUND_VORONOI == 0)
             axis equal
-            axis([0 imageSize(1) 0 imageSize(2)]);
+            axis([0 imageSize 0 imageSize]);
             axis off
         end
 
@@ -173,4 +183,17 @@ function neighborM = GetNeighborOfCenters(centerS, surIndex, TRI)
     neighborM(sub2ind([centerS+1, centerS+1], TRI(:, 2), TRI(:, 3))) = true;
     neighborM = neighborM(1:end-1, 1:end-1);
     neighborM = neighborM | neighborM';
+end
+
+function cellArea = GetAreaOfCell(cNeighborPos, cellCenter, imageSize, IMAGE_REALSIZE)
+    pointsNum = size(cNeighborPos, 1);
+    cNeighborPos = repmat(cNeighborPos, 2, 1);
+    cNeighborPos = cNeighborPos / imageSize * IMAGE_REALSIZE;
+    cellCenter = cellCenter / imageSize * IMAGE_REALSIZE;
+    cellArea = 0;
+    for i = 1 : pointsNum
+        vecA = cNeighborPos(i, :) - cellCenter;
+        vecB = cNeighborPos(i+1, :) - cellCenter;
+        cellArea = cellArea + abs(vecA(1)*vecB(2) - vecA(2)*vecB(1))*0.5;
+    end
 end
