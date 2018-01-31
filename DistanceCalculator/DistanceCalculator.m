@@ -68,10 +68,10 @@ function DistanceCalculator()
         TRI = delaunay(tempcX, tempcY);
 
         surIndex = size(centers, 1)+1:size(centers, 1)+4;
-        neighborM = GetNeighborOfCenters(size(centers, 1), surIndex, TRI);
+        [neighborM, excludedCellIndex] = GetNeighborOfCenters(size(centers, 1), surIndex, TRI);
         % For computing the area of cells
         bBox = [1 1; 1 imageSize; imageSize imageSize; imageSize 1];
-        [V, cells, XY] = VoronoiLimit(centers(:, 1), centers(:, 2), 'bs_ext', bBox);
+        [V, cells, XY] = VoronoiLimit(centers(:, 1), centers(:, 2), 'bs_ext', bBox, 'figure', 'off');
         for i = 1:size(centers, 1)
            diffXY = repmat(centers(i, :), nnz(neighborM(i, :)), 1) - centers(neighborM(i, :), :);
            diffXY = diffXY / imageSize *IMAGE_REALSIZE;
@@ -83,8 +83,12 @@ function DistanceCalculator()
            resultS(i+1, 2) = {sprintf('%d ', find(neighborM(i, :)))};
            
            %For computing the area of cells
-           fPos = centers(i, 1) == XY(:, 1) & centers(i, 2) == XY(:, 2);
-           cellArea(i) = GetAreaOfCell(V(cells{fPos}, :), centers(i, :), imageSize, IMAGE_REALSIZE);
+           if(nnz(excludedCellIndex == i) ~= 0)
+              cellArea(i) = -1;
+           else
+              fPos = centers(i, 1) == XY(:, 1) & centers(i, 2) == XY(:, 2);
+              cellArea(i) = GetAreaOfCell(V(cells{fPos}, :), centers(i, :), imageSize, IMAGE_REALSIZE);
+           end
         end
 
         resultS(2:end-1, 3) = num2cell(NND);
@@ -97,7 +101,8 @@ function DistanceCalculator()
         resultS(end, 3) = {sprintf('Regularity: %f', mean(NND) / std(NND))};
         resultS(end, 4) = {sprintf('Regularity: %f', mean(FND) / std(FND))};
         resultS(end, 5) = {sprintf('Regularity: %f', mean(ICD) / std(ICD))};
-        resultS(end, 6) = {sprintf('Regularity: %f', mean(cellArea) / std(cellArea))};
+        areaRegularity = mean(cellArea(cellArea ~= -1)) / std(cellArea(cellArea ~= -1));
+        resultS(end, 6) = {sprintf('Regularity: %f', areaRegularity)};
 
         % Save Results
         [C, ~] = strsplit(imageFiles(pos).name, '.');
@@ -175,14 +180,15 @@ function DistanceCalculator()
 
 end
 
-function neighborM = GetNeighborOfCenters(centerS, surIndex, TRI)
+function [neighborM, excludedCellIndex] = GetNeighborOfCenters(centerS, surIndex, TRI)
     neighborM = logical(sparse(centerS+1, centerS+1));
     TRI(surIndex(1)<=TRI) = centerS + 1;
     neighborM(sub2ind([centerS+1, centerS+1], TRI(:, 1), TRI(:, 2))) = true;
     neighborM(sub2ind([centerS+1, centerS+1], TRI(:, 1), TRI(:, 3))) = true;
     neighborM(sub2ind([centerS+1, centerS+1], TRI(:, 2), TRI(:, 3))) = true;
-    neighborM = neighborM(1:end-1, 1:end-1);
     neighborM = neighborM | neighborM';
+    excludedCellIndex = find(neighborM(1:end-1, end));
+    neighborM = neighborM(1:end-1, 1:end-1);
 end
 
 function cellArea = GetAreaOfCell(cNeighborPos, cellCenter, imageSize, IMAGE_REALSIZE)
